@@ -20,8 +20,35 @@ hadoop fs -put /home/cloudera/testdir/project_files/AgentPerformance.csv /user/c
      fields terminated by ','
     stored as textfile;
     
+# Create hive table for agentperformancereport
+create external table temp_agent_performance
+     (
+     sr_no int,
+     date string,
+     agent string,
+     total_chats int,
+     avg_response_time string,
+     avg_res_time string,
+     avg_rating float,
+     feedback int
+     )
+     row format delimited
+     fields terminated by ','
+     location 'hdfs:///user/cloudera/project_1/file_2'
+     tblproperties('skip.header.line.count'='1');
+    
 # List of all agents' names.
   insert overwrite local directory '/home/cloudera/testdir/project_1/agent_names'
   select DISTINCT agent from temp_agent_loging_report;
+  
+  
+# Find out agent average rating.
+
+   insert overwrite local directory '/home/cloudera/testdir/project_1/agent_avg_rating'
+     row format delimited
+     fields terminated by '\t'
+     select agent, avg(avg_rating) as overall_avg_rating from temp_agent_performance
+     GROUP BY agent;
+
   
   
