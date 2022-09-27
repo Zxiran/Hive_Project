@@ -1,0 +1,27 @@
+# load file into hdfs from local
+
+#File 1
+ hadoop fs -put /home/cloudera/testdir/project_files/AgentLogingReport.csv /user/cloudera/project_1/
+
+#File 2
+hadoop fs -put /home/cloudera/testdir/project_files/AgentPerformance.csv /user/cloudera/project_1/
+
+# Create hive table for agentlogingreport
+ create table temp_agent_loging_report
+    (
+     sr_no int,
+     agent string,
+     date string,
+     login_time string,
+     logout_time string,
+     duration string
+     )
+     row format delimited
+     fields terminated by ','
+    stored as textfile;
+    
+# List of all agents' names.
+  insert overwrite local directory '/home/cloudera/testdir/project_1/agent_names'
+  select DISTINCT agent from temp_agent_loging_report;
+  
+  
