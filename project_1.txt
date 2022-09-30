@@ -49,6 +49,16 @@ create external table temp_agent_performance
      fields terminated by '\t'
      select agent, avg(avg_rating) as overall_avg_rating from temp_agent_performance
      GROUP BY agent;
+     
+5. Total working days for each agents
+
+     insert overwrite local directory '/home/cloudera/testdir/project_1/total_working_days'
+     row format delimited
+     fields terminated by ','
+     stored as textfile
+     select  agent ,COUNT(DISTINCT date)  from orc_agent_loging_report
+     GROUP BY agent;
+
 
   
   
