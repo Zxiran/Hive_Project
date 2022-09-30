@@ -67,6 +67,14 @@ create external table temp_agent_performance
      stored as textfile
      select agent ,sum(total_chats) from temp_agent_performance
      GROUP BY agent;
+     
+7. Total Feedback that each agent have received
+    insert overwrite local directory '/home/cloudera/testdir/project_1/agent_total_feedback'
+     row format delimited
+     fields terminated by ':'
+     stored as textfile
+     select agent ,sum(feedback) from temp_agent_performance
+     GROUP BY agent;
 
 
   
