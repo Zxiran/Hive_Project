@@ -58,6 +58,15 @@ create external table temp_agent_performance
      stored as textfile
      select  agent ,COUNT(DISTINCT date)  from orc_agent_loging_report
      GROUP BY agent;
+     
+6. Total query that each agent have taken
+
+     insert overwrite local directory '/home/cloudera/testdir/project_1/total_agent_query'
+     row format delimited
+     fields terminated by ':'
+     stored as textfile
+     select agent ,sum(total_chats) from temp_agent_performance
+     GROUP BY agent;
 
 
   
