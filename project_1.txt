@@ -85,6 +85,16 @@ create external table temp_agent_performance
      select agent,avg(avg_rating) as avg_rating from temp_agent_performance
      GROUP BY agent
      HAVING avg(avg_rating)>= 3.5 AND avg(avg_rating)<=4;
+     
+11. How many feedback agents have received more than 4.5 average
+     
+     insert overwrite local directory '/home/cloudera/testdir/project_1/agent_total_feedback_rating_4point5'
+     row format delimited
+     fields terminated by ':'
+     select agent , sum(feedback) as total_feedback
+     from temp_agent_performance
+     WHERE avg_rating >4.5
+     GROUP BY agent;
 
   
   
