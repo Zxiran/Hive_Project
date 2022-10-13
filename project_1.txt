@@ -154,7 +154,44 @@ add file file:///home/cloudera/project_1/scripts/timeinsec.py;
   select agent , date_format(date,'W') as week , avg(avg_resp_time_sec) as weekly_avg_resp from transformed_agent_performance_orc                                       
   WHERE total_chats !=0
   GROUP BY agent,date_format(date,'W')
+  
+  
+13. average weekly resolution time for each agents
+  # final script for transforming date , avg_resp_time , avg_res_time 
+  
+  add file file:///home/cloudera/project_1/scripts/p1_script.py
+  
+  select agent , avg(avg_res_time) , date_format(date,'W') from transformed_agent_performance_orc
+    > WHERE total_chats !=0
+    > GROUP BY agent,date_format(date,'W');
+    
+ # For converting weekly-avg-res-time again into HH:MM:SS format, store data in new table and than transform using udf "time_format.py"
  
+    add file file:///home/cloudera/project_1/scripts/time_format.py
+    
+    create table agent_perf_weekly_avg_res
+     (
+     agent string,
+     week_avg_res_time_min float,
+     week string
+     )
+     stored as orc;
+     
+    # Loading the data into table 
+    insert overwrite table agent_perf_weekly_avg_res
+    select agent , avg(avg_res_time) , date_format(date,'W') from transformed_agent_performance_orc
+    WHERE total_chats !=0
+    GROUP BY agent,date_format(date,'W');
+    
+    # Storing the output in local directory
+    
+     insert overwrite local directory '/home/cloudera/project_1/outputs/week_avg_res_ofeachagent'
+     row format delimited
+     fields terminated by '\t'
+     select transform(agent,week_avg_res_time_min,week) using 'python3.8 time_format.py' as (agent,time,week) from agent_perf_weekly_avg_res;
+     
+     
+    
      
  
 
