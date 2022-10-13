@@ -95,6 +95,74 @@ create external table temp_agent_performance
      from temp_agent_performance
      WHERE avg_rating >4.5
      GROUP BY agent;
+     
+12. average weekly response time for each agent
+
+# STEP 1:
+# To solve this query  UDF dateformat.py was created so that date can be in the format of YYYY-MM-DD. That format enables us to use hive built-in fn "date_format()" which returns us the week of the month which is essential to solve the query
+
+
+# Creating the orc table
+ create table agent_performance_orc
+     (
+          sr_no int,
+          date Date,
+          agent string,
+          total_chats int,
+          avg_response_time string,
+          avg_res_time string,
+          avg_rating float,
+          feedback int
+          )
+     stored as orc;
+
+add file file:///usr/local/bin/python3.8
+
+add file file:///home/cloudera/project_1/scripts/dateformat.py;
+
+# Query to transform the date column and inserting it in table agent_performance_orc
+
+insert into table agent_performance_orc select transform(sr_no,date,agent,total_chats,avg_response_time,avg_res_time,avg_rating,feedback) using 'python3.8 dateformat.py' as (num,newdate,name,chats,avg_resp,avg_res,avg_rating,feedback) from temp_agent_performance;
+
+STEP 2:
+
+# Transforming the time to sec and storing it in table for calculating the avg response time of each agent
+
+add file file:///home/cloudera/project_1/scripts/timeinsec.py;
+
+# Create orc table for transformed date time 
+
+     create table transformed_agent_performance_orc
+     (
+     sr_no int,
+     date Date,
+      agent string,
+      total_chats int,
+     avg_resp_time_sec int,
+     avg_res_time string,
+     avg_rating float,
+     feedback int
+      )
+     stored as orc;
+ # Inserting the transformed response time in table   
+ insert into table transformed_agent_performance_orc
+ select transform(sr_no,date,agent,total_chats,avg_response_time,avg_res_time,avg_rating,feedback) using 'python3.8 timetosec.py' as  (num,newdate,name,chats,timeinsec,avg_res,avg_rating,feedback) from temp_agent_performance;
+ 
+ # STEP 3:
+ #Query to get average weekly response time for each agent
+
+  select agent , date_format(date,'W') as week , avg(avg_resp_time_sec) as weekly_avg_resp from transformed_agent_performance_orc                                       
+  WHERE total_chats !=0
+  GROUP BY agent,date_format(date,'W')
+ 
+     
+ 
+
+
+
+  
+  
+
 
   
   
