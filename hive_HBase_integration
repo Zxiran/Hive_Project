@@ -25,3 +25,8 @@ create table hbase_sales_order_data
      WITH SERDEPROPERTIES
      ("hbase.columns.mapping" = ":key,customer:first_name,customer:last_name,customer:phone,order:ord_qty,order:odr_line_no,order:status,product:prd_line,product:prd_code,product:price,product:msrp,purchase:month_id,purchase:qtr_id,purchase:yr_id,location:city,location:post_code,location:state,location:trr,location:country,others:sales,others:deal_size")
      tblproperties("hbase.table.name"="sales_data");
+     
+     
+     # insert data in table
+     insert overwrite table  hbase_sales_order_data select * from sales_order_data_csv_v1;
+
