@@ -23,7 +23,7 @@ create table hbase_sales_order_data
      )
      STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
      WITH SERDEPROPERTIES
-     ("hbase.columns.mapping" = ":key,customer:first_name,customer:last_name,customer:phone,order:ord_qty,order:odr_line_no,order:status,product:prd_line,product:prd_code,product:price,product:msrp,purchase:month_id,purchase:qtr_id,purchase:yr_id,location:city,location:post_code,location:state,location:trr,location:country,others:sales,others:deal_size")
+     ("hbase.columns.mapping" = ":key,order:ord_qty,product:price,order:odr_line_no,others:sales,order:status,purchase:qtr_id,purchase:month_id,purchase:yr_id,product:prd_line,product:msrp,product:prd_code,customer:phone,location:city,location:state,location:post_code,location:country,location:trr,customer:first_name,customer:last_name,others:deal_size")
      tblproperties("hbase.table.name"="sales_data");
      
      
