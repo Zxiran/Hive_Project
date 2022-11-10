@@ -191,9 +191,51 @@ add file file:///home/cloudera/project_1/scripts/timeinsec.py;
      select transform(agent,week_avg_res_time_min,week) using 'python3.8 time_format.py' as (agent,time,week) from agent_perf_weekly_avg_res;
      
      
-    
+  15.Total contribution hour for each and every agents weekly basis   
      
- 
+  # Temperory table to store the modified date format and week of the month data in hive
+  
+  create table temp_agentloging
+    > (
+    > agent string,
+    > date DATE,
+    > week string,
+    > dur string
+    > )
+    > stored as orc;
+  
+  # loading the data in hive table (temp_agentloging)
+  
+  insert into table  temp_agentloging 
+  select agent , date, date_format(date,'W') as week , dur  
+  from 
+  (select agent , concat('20',substr(date,8,2) , '-' , '07' , '-' , substr(date,1,2)) as date , login , logout ,dur from agentloging) as t1
+  ;
+  
+  # query to transform duration column using python script(timetohr.py)
+  
+    select  transform(agent , date,week,dur) using 'python3.8 timetohr.py'
+    from temp_agentloging;
+    
+  # before loading into modified file store in local directory if direct load fails
+     insert overwrite local directory '/home/cloudera/project_1/outputs/mod_agentloging'
+     row format delimited
+     fields terminated by ','
+     select  transform(agent , date,week,dur) using 'python3.8 timetohr.py'
+     from temp_agentloging;
+
+    
+  # final modified table with correct date , week of month and duration in hr
+  
+    create table mod_agentloging
+    > ( agent string,
+    > date DATE,
+    > week int,
+    > dur_in_hr float
+    > )
+    > stored as orc;
+    
+    
 
 
 
