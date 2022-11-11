@@ -246,6 +246,22 @@ add file file:///home/cloudera/project_1/scripts/timeinsec.py;
   stored as textfile
      select agent ,week , round(sum(dur_in_hr),2) as contri_per_week
      from mod_agentloging group by agent,week;
+     
+     
+  16. Perform inner join, left join and right join based on the agent column and after joining the table export that data into your local system.
+  
+  # Inner join 
+  insert overwrite local directory 'file:///home/cloudera/project_1/joins/inner_join'
+  row format delimited
+  fields terminated by '\t'
+  stored as textfile
+  select al.agent , al.date as date , al.login as login , al.logout as logout , al.dur as dur  , ap.total_chats as chats ,
+  ap.avg_response_time as avg_resp ,      ap.avg_res_time as avg_res , ap.avg_rating as avg_rating , ap.feedback as fdbk
+  from agentloging al
+  JOIN
+  agent_performance_orc  ap
+  ON (al.agent = ap.agent AND al.date = ap.date)
+     ;
     
     
 
