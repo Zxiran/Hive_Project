@@ -228,12 +228,12 @@ add file file:///home/cloudera/project_1/scripts/timeinsec.py;
   # final modified table with correct date , week of month and duration in hr
   
     create table mod_agentloging
-    > ( agent string,
-    > date DATE,
-    > week int,
-    > dur_in_hr float
-    > )
-    > stored as orc;
+     ( agent string,
+     date DATE,
+     week int,
+     dur_in_hr float
+     )
+     stored as orc;
     
     
 
