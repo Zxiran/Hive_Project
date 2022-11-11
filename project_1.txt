@@ -217,12 +217,11 @@ add file file:///home/cloudera/project_1/scripts/timeinsec.py;
     select  transform(agent , date,week,dur) using 'python3.8 timetohr.py'
     from temp_agentloging;
     
-  # before loading into modified file store in local directory if direct load fails
-     insert overwrite local directory '/home/cloudera/project_1/outputs/mod_agentloging'
+  # store transformed data in local directory
+    insert overwrite local directory '/home/cloudera/project_1/mod_file'
      row format delimited
      fields terminated by ','
-     select  transform(agent , date,week,dur) using 'python3.8 timetohr.py'
-     from temp_agentloging;
+     select transform(agent,date,week,dur) using 'python3.8 timetohr.py' as (agent,date,week,dur_in_hr) from           temp_agentloging;
 
     
   # final modified table with correct date , week of month and duration in hr
@@ -233,7 +232,20 @@ add file file:///home/cloudera/project_1/scripts/timeinsec.py;
      week int,
      dur_in_hr float
      )
-     stored as orc;
+     row format delimited
+     fields terminated by ',';
+     
+  # loading the transformed data stored in local directory in hive table (mod_agentloging)
+  
+    load data local inpath 'file:///home/cloudera/project_1/mod_file/000000_0'into table mod_agentloging;
+    
+  # query -- contribution hour of each agent per week 
+  insert overwrite local directory 'file:///home/cloudera/project_1/outputs/contri_per_week'
+  row format delimited
+  fields terminated by ','
+  stored as textfile
+     select agent ,week , round(sum(dur_in_hr),2) as contri_per_week
+     from mod_agentloging group by agent,week;
     
     
 
